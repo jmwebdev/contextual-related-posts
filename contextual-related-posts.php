@@ -127,6 +127,8 @@ function ald_crp( $args = array() ) {
 		'strict_limit' => TRUE,
 	) ) );
 
+	
+	## Begin the output HTML string
 	$output = ( is_singular() ) ? '<div id="crp_related" class="crp_related' . ( $is_widget ? '_widget' : '' ) . '">' : '<div class="crp_related' . ( $is_widget ? '_widget' : '' ) . '">';
 
 	if ( $results ) {
@@ -211,62 +213,26 @@ function ald_crp( $args = array() ) {
 				 */
 				$title = apply_filters( 'crp_title', $title, $result );
 
-				if ( 'after' == $post_thumb_op ) {
-					$output .= '<a href="' . get_permalink( $result->ID ) . '" ' . $rel_attribute . ' ' . $target_attribute . 'class="crp_title">' . $title . '</a>'; // Add title if post thumbnail is to be displayed after
-				}
-				if ( 'inline' == $post_thumb_op || 'after' == $post_thumb_op || 'thumbs_only' == $post_thumb_op ) {
-					$output .= '<a href="' . get_permalink( $result->ID ) . '" ' . $rel_attribute . ' ' . $target_attribute . '>';
-					$output .= crp_get_the_post_thumbnail( array(
-						'postid' => $result->ID,
-						'thumb_height' => $thumb_height,
-						'thumb_width' => $thumb_width,
-						'thumb_meta' => $thumb_meta,
-						'thumb_html' => $thumb_html,
-						'thumb_default' => $thumb_default,
-						'thumb_default_show' => $thumb_default_show,
-						'scan_images' => $scan_images,
-						'class' => 'crp_thumb',
-					) );
-					$output .= '</a>';
-				}
-				if ( 'inline' == $post_thumb_op || 'text_only' == $post_thumb_op ) {
-					$output .= '<a href="' . get_permalink( $result->ID ) . '" ' . $rel_attribute . ' ' . $target_attribute . ' class="crp_title">' . $title . '</a>'; // Add title when required by settings
-				}
-				if ( $show_author ) {
-					$author_info = get_userdata( $result->post_author );
-					$author_link = get_author_posts_url( $author_info->ID );
-					$author_name = ucwords( trim( stripslashes( $author_info->display_name ) ) );
+				$category = get_the_category($result->ID);
+				$category = $category[0];
 
-					/**
-					 * Filter the author name.
-					 *
-					 * @since	1.9.1
-					 *
-					 * @param	string	$author_name	Proper name of the post author.
-					 * @param	object	$author_info	WP_User object of the post author
-					 */
-					$author_name = apply_filters( 'crp_author_name', $author_name, $author_info );
+				# open up the link
+				$output .= '<a href="' . get_permalink( $result->ID ) . '" ' . $rel_attribute . ' ' . $target_attribute . '>';
+				$output .= crp_get_the_post_thumbnail( array(
+					'postid' => $result->ID,
+					'thumb_height' => $thumb_height,
+					'thumb_width' => $thumb_width,
+					'thumb_meta' => $thumb_meta,
+					'thumb_html' => $thumb_html,
+					'thumb_default' => $thumb_default,
+					'thumb_default_show' => $thumb_default_show,
+					'scan_images' => $scan_images,
+					'class' => 'crp_thumb',
+				) );
+				$output .= '</a><span class="crp_cat"><a href="'. get_category_link( $category->term_id ) .'">' . $category->name . '</a></span>';
 
-					$crp_author = '<span class="crp_author"> ' . __( ' by ', CRP_LOCAL_NAME ).'<a href="' . $author_link . '">' . $author_name . '</a></span> ';
-
-					/**
-					 * Filter the text with the author details.
-					 *
-					 * @since	2.0.0
-					 *
-					 * @param	string	$crp_author	Formatted string with author details and link
-					 * @param	object	$author_info	WP_User object of the post author
-					 */
-					$crp_author = apply_filters( 'crp_author', $crp_author, $author_info);
-
-					$output .= $crp_author;
-				}
-				if ( $show_date ) {
-					$output .= '<span class="crp_date"> ' . mysql2date( get_option( 'date_format', 'd/m/y' ), $result->post_date ) . '</span> ';
-				}
-				if ( $show_excerpt ) {
-					$output .= '<span class="crp_excerpt"> ' . crp_excerpt( $result->ID, $excerpt_length ) . '</span>';
-				}
+				$output .=  '<span class="crp_title"><a href="' . get_permalink( $result->ID ) . '" ' . $rel_attribute . ' ' . $target_attribute . '>'. $title . '</a></span>';
+				
 				$loop_counter++;
 
 				/**
@@ -281,17 +247,7 @@ function ald_crp( $args = array() ) {
 			}
 			if ( $loop_counter == $limit ) break;	// End loop when related posts limit is reached
 		} //end of foreach loop
-		if ( $show_credit ) {
 
-			/** This filter is documented in contextual-related-posts.php */
-			$output .= apply_filters( 'crp_before_list_item', $before_list_item, $result );	// Pass the post object to the filter
-
-			$output .= sprintf( __( 'Powered by <a href="%s" rel="nofollow">Contextual Related Posts</a>', CRP_LOCAL_NAME ), esc_url( 'http://ajaydsouza.com/wordpress/plugins/contextual-related-posts/' ) );
-
-			/** This filter is documented in contextual-related-posts.php */
-			$output .= apply_filters( 'crp_after_list_item', $after_list_item, $result );
-
-		}
 
 		/**
 		 * Filter the closing tag of the related posts list
