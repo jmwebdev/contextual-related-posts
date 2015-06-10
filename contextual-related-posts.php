@@ -229,9 +229,9 @@ function ald_crp( $args = array() ) {
 					'scan_images' => $scan_images,
 					'class' => 'crp_thumb',
 				) );
-				$output .= '</a><span class="crp_cat"><a href="'. get_category_link( $category->term_id ) .'">' . $category->name . '</a></span>';
+				$output .= '</a><div class="crp_wrap"><span class="crp_cat"><a href="'. get_category_link( $category->term_id ) .'">' . $category->name . '</a></span>';
 
-				$output .=  '<span class="crp_title"><a href="' . get_permalink( $result->ID ) . '" ' . $rel_attribute . ' ' . $target_attribute . '>'. $title . '</a></span>';
+				$output .=  '<span class="crp_title"><a href="' . get_permalink( $result->ID ) . '" ' . $rel_attribute . ' ' . $target_attribute . '>'. $title . '</a></span></div>';
 				
 				$loop_counter++;
 
